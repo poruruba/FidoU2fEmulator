@@ -6,7 +6,7 @@
 #include <BLEServer.h>
 #include "BLE2902.h"
 #include <ArduinoECCX08.h>
-#include <utility/ECCX08Cert.h>
+#include <utility/ECCX08FidoCert.h>
 
 #define LGFX_AUTODETECT
 #include <LovyanGFX.hpp>
@@ -26,7 +26,7 @@
 #define DEVICE_NAME "FidoU2fEmulator"
 //#define BLE_PASSKEY 123456
 #define DISCONNECT_WAIT 3000
-#define FIDO_ISSUER "FT FIDO 0200"
+#define FIDO_ISSUER "MY FIDO 0100"
 
 static LGFX lcd;
 
@@ -281,8 +281,8 @@ int process_register(const uint8_t *challenge, const uint8_t *application)
     return 2;
   }
 
-  if (!ECCX08Cert.beginStorage(DEFAULT_KEY_SLOT, DEFAULT_ISSUER_KEY_SLOT)){
-    Serial.println("Error starting self signed cert generation!");
+  if (!ECCX08FidoCert.beginStorage(DEFAULT_KEY_SLOT, DEFAULT_ISSUER_KEY_SLOT)){
+    Serial.println("Error starting cert generation!");
     payload[0] = 0x6a;
     payload[1] = 0x80;
     return 2;
@@ -302,19 +302,19 @@ int process_register(const uint8_t *challenge, const uint8_t *application)
   fido_serial[SERIAL_LENGTH + 2] = (counter >> 8) & 0xff;
   fido_serial[SERIAL_LENGTH + 3] = (counter) & 0xff;
 
-  ECCX08Cert.setSerialNumber(fido_serial, sizeof(fido_serial));
-  ECCX08Cert.setIssuerName(FIDO_ISSUER);
-  ECCX08Cert.setCommonName(String(FIDO_ISSUER) + ECCX08.serialNumber());
-  ECCX08Cert.setIssueYear(2022);
-  ECCX08Cert.setIssueMonth(1);
-  ECCX08Cert.setIssueDay(1);
-  ECCX08Cert.setIssueHour(0);
-  ECCX08Cert.setExpireYears(10);
+  ECCX08FidoCert.setSerialNumber(fido_serial, sizeof(fido_serial));
+  ECCX08FidoCert.setIssuerName(FIDO_ISSUER);
+  ECCX08FidoCert.setCommonName(String(FIDO_ISSUER) + ECCX08.serialNumber());
+  ECCX08FidoCert.setIssueYear(2022);
+  ECCX08FidoCert.setIssueMonth(1);
+  ECCX08FidoCert.setIssueDay(1);
+  ECCX08FidoCert.setIssueHour(0);
+  ECCX08FidoCert.setExpireYears(10);
 
   uint8_t *cert;
-  int cert_len = ECCX08Cert.endStorage(&cert);
+  int cert_len = ECCX08FidoCert.endStorage(&cert);
   if( cert_len < 0 ){
-    Serial.println("ECCX08SelfSignedCert error");
+    Serial.println("ECCX08FidoCert error");
     payload[0] = 0x6a;
     payload[1] = 0x80;
     return 2;
