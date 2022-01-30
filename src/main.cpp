@@ -314,7 +314,7 @@ int process_register(const uint8_t *challenge, const uint8_t *application)
   uint8_t *cert;
   int cert_len = ECCX08FidoCert.endStorage(&cert);
   if( cert_len < 0 ){
-    Serial.println("ECCX08FidoCert error");
+    Serial.println("ECCX08FidoCert.endStorage error");
     payload[0] = 0x6a;
     payload[1] = 0x80;
     return 2;
